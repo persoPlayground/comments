@@ -1,25 +1,36 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useReducer, useEffect } from 'react';
+
+import Pubsub from './pubsub';
+import Context from './context';
+import reducer, { initialState } from './state/reducer';
+import PublishMessage from './components/PublishMessage';
+import MessageBoard from './components/MessageBoard'
+import SetUserName from './components/SetUserName'
+
+const pubSub = new Pubsub();
 
 function App() {
+  const [state , dispatch] = useReducer(reducer, initialState);
+console.log(state)
+  useEffect(() => {
+    pubSub.addListener({
+      message: messageObj => {
+        const { channel, message } = messageObj;
+        dispatch(message);
+      }
+    })
+  }, []);
   return (
+    <Context.Provider value={{ state, dispatch, pubSub }}>
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+     <h2>App</h2>
+     <SetUserName />
+     <hr />
+    <PublishMessage />
+    <hr />
+    <MessageBoard />
     </div>
+    </Context.Provider>
   );
 }
 
